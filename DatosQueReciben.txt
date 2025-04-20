@@ -1,0 +1,33 @@
+Datos que recibe Colaborador:
+
+{
+    "nombre": "Christian",
+    "apellidos": "Serrano Puertos",
+    "correo_institucional": "christian.serrano@coppel.com",
+    "numero_empleado": "123456781",
+    "zona_actual": "zona001"
+}
+
+Datos que recibe Microempresario:
+
+{
+    "nombre": "Ana",
+    "apellidos": "Gómez Martínez",
+    "telefono": "1234567890",
+    "correo_electronico": "ana.gomez@gmail.com",
+    "nombre_negocio": "Panadería El Buen Sabor",
+    "tipo_negocio": "Panadería",
+    "foto_negocio_url": "https://ejemplo.com/foto.jpg",
+    "ubicacion": {
+        "estado": "Veracruz",
+        "municipio": "Veracruz",
+        "colonia": "Centro",
+        "codigo_postal": "91700",
+        "calle": "Calle 5",
+        "numero_edificio": "10"
+    },
+    "coordenadas_geograficas": {
+        "latitud": 19.4326,
+        "longitud": -99.1332
+    }
+}
