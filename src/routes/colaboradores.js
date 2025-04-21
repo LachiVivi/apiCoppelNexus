@@ -19,7 +19,7 @@ router.get('/colaboradores', async (req , res) =>{
 //Crear colaborador
 //http://localhost:3000/nuevo-colaborador
 router.post('/nuevo-colaborador', async (req, res) => {
-    const { nombre, apellidos, correo_institucional, numero_empleado, zona_actual } = req.body;
+    const { nombre, apellidos, correo_institucional, numero_empleado, zona_actual, contrasenia } = req.body;
     
     //Id de colaborador aleatorio
     const randomNum = Math.floor(Math.random() * 900) + 100;
@@ -35,6 +35,7 @@ router.post('/nuevo-colaborador', async (req, res) => {
         correo_institucional,
         numero_empleado,
         zona_actual,
+        contrasenia,
         fecha_registro,
         llaves_acumuladas: 0,
         avatar: {
@@ -97,7 +98,7 @@ router.get('/colaborador/:numero_empleado', async (req, res) => {
 //http://localhost:3000/actualizar-colaborador/:numero_empleado
 router.put('/actualizar-colaborador/:numero_empleado', async (req, res) => {
     const { numero_empleado } = req.params;
-    const { nombre, apellidos, correo_institucional, nuevo_numero_empleado, zona_actual, llaves_acumuladas } = req.body;
+    const { nombre, apellidos, correo_institucional, nuevo_numero_empleado, zona_actual, llaves_acumuladas, contrasenia } = req.body;
 
     try {
         // Busca por número de empleado
@@ -120,6 +121,7 @@ router.put('/actualizar-colaborador/:numero_empleado', async (req, res) => {
             if (nuevo_numero_empleado) updateData.numero_empleado = nuevo_numero_empleado;
             if (zona_actual) updateData.zona_actual = zona_actual;
             if (llaves_acumuladas !== undefined) updateData.llaves_acumuladas = llaves_acumuladas;
+            if (contrasenia) updateData.contrasenia = contrasenia;
 
             updates.push(doc.ref.update(updateData));
         });
