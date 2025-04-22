@@ -1,12 +1,28 @@
 const {Router} =  require('express');
-const{db} = require('../firebase')
+const{db} = require('../firebase');
 
 const router = Router();
 
-//Lista de colaboradores
-//http://localhost:3000/colaboradores
+/**
+ * @swagger
+ * /colaboradores:
+ *   get:
+ *     summary: Obtiene la lista de todos los colaboradores
+ *     description: Retorna un array con todos los colaboradores registrados en la base de datos
+ *     tags: [Colaboradores]
+ *     responses:
+ *       200:
+ *         description: Lista de colaboradores
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Colaborador'
+ *       500:
+ *         description: Error del servidor
+ */
 router.get('/colaboradores', async (req , res) =>{
-
     const querySnapshot =  await db.collection('colaboradores').get()
 
     const colaboradores = querySnapshot.docs.map(doc =>({
@@ -16,8 +32,61 @@ router.get('/colaboradores', async (req , res) =>{
     res.status(200).json(colaboradores);
 });
 
-//Crear colaborador
-//http://localhost:3000/nuevo-colaborador
+/**
+ * @swagger
+ * /nuevo-colaborador:
+ *   post:
+ *     summary: Crea un nuevo colaborador
+ *     description: Crea un nuevo registro de colaborador en la base de datos
+ *     tags: [Colaboradores]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nombre
+ *               - apellidos
+ *               - numero_empleado
+ *               - zona_actual
+ *               - contrasenia
+ *             properties:
+ *               nombre:
+ *                 type: string
+ *                 description: Nombre del colaborador
+ *               apellidos:
+ *                 type: string
+ *                 description: Apellidos del colaborador
+ *               numero_empleado:
+ *                 type: string
+ *                 description: Número único de empleado
+ *               zona_actual:
+ *                 type: string
+ *                 description: Zona donde trabaja el colaborador
+ *               contrasenia:
+ *                 type: string
+ *                 description: Contraseña del colaborador
+ *               foto_perfil_url:
+ *                 type: string
+ *                 description: URL de la foto de perfil
+ *     responses:
+ *       201:
+ *         description: Colaborador creado exitosamente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 mensaje:
+ *                   type: string
+ *                   example: Colaborador creado exitosamente
+ *                 id_colaborador:
+ *                   type: string
+ *                   example: col123
+ *       500:
+ *         description: Error al crear el colaborador
+ */
 router.post('/nuevo-colaborador', async (req, res) => {
     const { nombre, apellidos, numero_empleado, zona_actual, contrasenia, foto_perfil_url } = req.body;
     
@@ -57,8 +126,32 @@ router.post('/nuevo-colaborador', async (req, res) => {
     }
 });
 
-//Obtener colaborador por número de empleado
-//http://localhost:3000/colaborador/:numero_empleado
+/**
+ * @swagger
+ * /colaborador/{numero_empleado}:
+ *   get:
+ *     summary: Obtiene un colaborador por su número de empleado
+ *     description: Retorna los datos de un colaborador específico según su número de empleado
+ *     tags: [Colaboradores]
+ *     parameters:
+ *       - in: path
+ *         name: numero_empleado
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Número de empleado del colaborador
+ *     responses:
+ *       200:
+ *         description: Datos del colaborador
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Colaborador'
+ *       404:
+ *         description: Colaborador no encontrado
+ *       500:
+ *         description: Error del servidor
+ */
 router.get('/colaborador/:numero_empleado', async (req, res) => {
     const { numero_empleado } = req.params;
 
@@ -86,8 +179,46 @@ router.get('/colaborador/:numero_empleado', async (req, res) => {
     }
 });
 
-//Actualizar colaborador
-//http://localhost:3000/actualizar-colaborador/:numero_empleado
+/**
+ * @swagger
+ * /actualizar-colaborador/{numero_empleado}:
+ *   put:
+ *     summary: Actualiza los datos de un colaborador
+ *     description: Actualiza la información de un colaborador existente identificado por su número de empleado
+ *     tags: [Colaboradores]
+ *     parameters:
+ *       - in: path
+ *         name: numero_empleado
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Número de empleado del colaborador a actualizar
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nombre:
+ *                 type: string
+ *               apellidos:
+ *                 type: string
+ *               nuevo_numero_empleado:
+ *                 type: string
+ *               zona_actual:
+ *                 type: string
+ *               contrasenia:
+ *                 type: string
+ *               foto_perfil_url:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Colaborador actualizado exitosamente
+ *       404:
+ *         description: Colaborador no encontrado
+ *       500:
+ *         description: Error al actualizar el colaborador
+ */
 router.put('/actualizar-colaborador/:numero_empleado', async (req, res) => {
     const { numero_empleado } = req.params;
     const { nombre, apellidos, nuevo_numero_empleado, zona_actual, contrasenia, foto_perfil_url } = req.body;
@@ -131,8 +262,28 @@ router.put('/actualizar-colaborador/:numero_empleado', async (req, res) => {
     }
 });
 
-//Eliminar colaborador
-//http://localhost:3000/eliminar-colaborador/:numero_empleado
+/**
+ * @swagger
+ * /eliminar-colaborador/{numero_empleado}:
+ *   get:
+ *     summary: Elimina un colaborador
+ *     description: Elimina un colaborador de la base de datos según su número de empleado
+ *     tags: [Colaboradores]
+ *     parameters:
+ *       - in: path
+ *         name: numero_empleado
+ *         schema:
+ *           type: string
+ *         required: true
+ *         description: Número de empleado del colaborador a eliminar
+ *     responses:
+ *       200:
+ *         description: Colaborador eliminado exitosamente
+ *       404:
+ *         description: Colaborador no encontrado
+ *       500:
+ *         description: Error al eliminar el colaborador
+ */
 router.get('/eliminar-colaborador/:numero_empleado', async (req, res) => {
     const { numero_empleado } = req.params;
 
