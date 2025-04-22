@@ -19,7 +19,7 @@ router.get('/colaboradores', async (req , res) =>{
 //Crear colaborador
 //http://localhost:3000/nuevo-colaborador
 router.post('/nuevo-colaborador', async (req, res) => {
-    const { nombre, apellidos, correo_institucional, numero_empleado, zona_actual, contrasenia } = req.body;
+    const { nombre, apellidos, numero_empleado, zona_actual, contrasenia, foto_perfil_url } = req.body;
     
     //Id de colaborador aleatorio
     const randomNum = Math.floor(Math.random() * 900) + 100;
@@ -32,23 +32,15 @@ router.post('/nuevo-colaborador', async (req, res) => {
         id_colaborador,
         nombre,
         apellidos,
-        correo_institucional,
         numero_empleado,
         zona_actual,
         contrasenia,
         fecha_registro,
-        llaves_acumuladas: 0,
-        avatar: {
-            rostro: "",
-            torso: "",
-            cabello: "",
-            tono_piel: ""
-        },
+        foto_perfil_url,
         incentivos_canjeados: [],
         registro_actividades: [],
-        logros_obtenidos: [],
-        desafios_completados: [],
-        notificaciones: []
+        notificaciones: [],
+        rutas:[]
     };
 
     try {
@@ -98,7 +90,7 @@ router.get('/colaborador/:numero_empleado', async (req, res) => {
 //http://localhost:3000/actualizar-colaborador/:numero_empleado
 router.put('/actualizar-colaborador/:numero_empleado', async (req, res) => {
     const { numero_empleado } = req.params;
-    const { nombre, apellidos, correo_institucional, nuevo_numero_empleado, zona_actual, llaves_acumuladas, contrasenia } = req.body;
+    const { nombre, apellidos, nuevo_numero_empleado, zona_actual, contrasenia, foto_perfil_url } = req.body;
 
     try {
         // Busca por número de empleado
@@ -117,11 +109,10 @@ router.put('/actualizar-colaborador/:numero_empleado', async (req, res) => {
             
             if (nombre) updateData.nombre = nombre;
             if (apellidos) updateData.apellidos = apellidos;
-            if (correo_institucional) updateData.correo_institucional = correo_institucional;
             if (nuevo_numero_empleado) updateData.numero_empleado = nuevo_numero_empleado;
             if (zona_actual) updateData.zona_actual = zona_actual;
-            if (llaves_acumuladas !== undefined) updateData.llaves_acumuladas = llaves_acumuladas;
             if (contrasenia) updateData.contrasenia = contrasenia;
+            if (foto_perfil_url) updateData.foto_perfil_url = foto_perfil_url;
 
             updates.push(doc.ref.update(updateData));
         });
