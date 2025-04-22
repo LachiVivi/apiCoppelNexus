@@ -4,6 +4,10 @@ const server = http.createServer(app);
 const { Server } = require('socket.io');
 const io = new Server(server);
 const { db } = require('./firebase');
+const { swaggerDocs } = require('./swagger'); 
+
+// Iniciamos la documentación de Swagger
+swaggerDocs(app);
 
 // iniciamos configurando el websocket
 io.on('connection', (socket) => {
@@ -113,4 +117,5 @@ io.on('connection', (socket) => {
 // Iniciamos el servidor en el puerto 3000
 server.listen(3000, () => {
   console.log('Servidor corriendo en el puerto 3000 con WebSocket');
+  console.log('Documentación de la API disponible en http://localhost:3000/api-docs');
 });
