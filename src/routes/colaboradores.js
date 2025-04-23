@@ -265,7 +265,7 @@ router.put('/actualizar-colaborador/:numero_empleado', async (req, res) => {
 /**
  * @swagger
  * /eliminar-colaborador/{numero_empleado}:
- *   get:
+ *   delete:
  *     summary: Elimina un colaborador
  *     description: Elimina un colaborador de la base de datos según su número de empleado
  *     tags: [Colaboradores]
