@@ -12,5 +12,7 @@ app.use(require("./routes/microempresarios"));
 app.use(require("./routes/incentivos"));
 app.use(require("./routes/zonas"));
 app.use(require("./routes/referencias"));
+app.use(require("./routes/rutas"));
+app.use(require("./routes/administradores"));
 
 module.exports = app;
