@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { db } = require('../firebase');
+const administradorController = require('../controllers/administradorController');
 
 const router = Router();
 
@@ -22,23 +22,7 @@ const router = Router();
  *       500:
  *         description: Error del servidor
  */
-router.get('/administradores', async (req, res) => {
-    try {
-        const querySnapshot = await db.collection('administradores').get();
-        
-        const administradores = querySnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }));
-        
-        res.status(200).json(administradores);
-    } catch (error) {
-        res.status(500).json({
-            error: 'Error al obtener los administradores',
-            detalle: error.message
-        });
-    }
-});
+router.get('/administradores', administradorController.obtenerTodos);
 
 /**
  * @swagger
@@ -66,32 +50,7 @@ router.get('/administradores', async (req, res) => {
  *       500:
  *         description: Error del servidor
  */
-router.get('/administrador/:id_admin', async (req, res) => {
-    const { id_admin } = req.params;
-
-    try {
-        const adminsRef = db.collection('administradores');
-        const snapshot = await adminsRef.where('id_admin', '==', id_admin).get();
-
-        if (snapshot.empty) {
-            return res.status(404).json({
-                error: 'No se encontró el administrador con el ID especificado'
-            });
-        }
-
-        const administrador = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }))[0]; // Tomamos el primer documento ya que debería ser único
-
-        res.status(200).json(administrador);
-    } catch (error) {
-        res.status(500).json({
-            error: 'Error al obtener el administrador',
-            detalle: error.message
-        });
-    }
-});
+router.get('/administrador/:id_admin', administradorController.obtenerPorId);
 
 /**
  * @swagger
@@ -145,42 +104,7 @@ router.get('/administrador/:id_admin', async (req, res) => {
  *       500:
  *         description: Error al crear el administrador
  */
-router.post('/nuevo-administrador', async (req, res) => {
-    const { nombre, apellidos, correo_institucional, numero_empleado, rol_admin } = req.body;
-    
-    try {
-        // Generar ID aleatorio de 3 dígitos
-        const randomNum = Math.floor(Math.random() * 900) + 100;
-        const id_admin = `admin${randomNum}`;
-
-        // Obtener fecha actual en formato AAAA-MM-DD
-        const fecha_registro = new Date().toISOString().split('T')[0];
-
-        const nuevoAdministrador = {
-            id_admin,
-            nombre,
-            apellidos,
-            correo_institucional,
-            numero_empleado,
-            fecha_registro,
-            rol_admin,
-            estado: "activo",
-            registro_actividades: []
-        };
-
-        await db.collection('administradores').add(nuevoAdministrador);
-        
-        res.status(201).json({
-            mensaje: 'Administrador creado exitosamente',
-            id_admin
-        });
-    } catch (error) {
-        res.status(500).json({
-            error: 'Error al crear el administrador',
-            detalle: error.message
-        });
-    }
-});
+router.post('/nuevo-administrador', administradorController.crear);
 
 /**
  * @swagger
@@ -229,36 +153,7 @@ router.post('/nuevo-administrador', async (req, res) => {
  *       500:
  *         description: Error al actualizar el administrador
  */
-router.put('/actualizar-administrador/:id_admin', async (req, res) => {
-    const { id_admin } = req.params;
-    const datosActualizar = req.body;
-    
-    try {
-        // Buscar el administrador por ID
-        const adminsRef = db.collection('administradores');
-        const snapshot = await adminsRef.where('id_admin', '==', id_admin).get();
-        
-        if (snapshot.empty) {
-            return res.status(404).json({
-                error: 'No se encontró el administrador con el ID especificado'
-            });
-        }
-        
-        // Actualizar el administrador
-        const docRef = snapshot.docs[0].ref;
-        await docRef.update(datosActualizar);
-        
-        res.status(200).json({
-            mensaje: 'Administrador actualizado exitosamente',
-            id_admin
-        });
-    } catch (error) {
-        res.status(500).json({
-            error: 'Error al actualizar el administrador',
-            detalle: error.message
-        });
-    }
-});
+router.put('/actualizar-administrador/:id_admin', administradorController.actualizar);
 
 /**
  * @swagger
@@ -282,34 +177,7 @@ router.put('/actualizar-administrador/:id_admin', async (req, res) => {
  *       500:
  *         description: Error al eliminar el administrador
  */
-router.delete('/eliminar-administrador/:id_admin', async (req, res) => {
-    const { id_admin } = req.params;
-    
-    try {
-        // Buscar el administrador por ID
-        const adminsRef = db.collection('administradores');
-        const snapshot = await adminsRef.where('id_admin', '==', id_admin).get();
-        
-        if (snapshot.empty) {
-            return res.status(404).json({
-                error: 'No se encontró el administrador con el ID especificado'
-            });
-        }
-        
-        // Eliminar el administrador
-        await snapshot.docs[0].ref.delete();
-        
-        res.status(200).json({
-            mensaje: 'Administrador eliminado exitosamente',
-            id_admin
-        });
-    } catch (error) {
-        res.status(500).json({
-            error: 'Error al eliminar el administrador',
-            detalle: error.message
-        });
-    }
-});
+router.delete('/eliminar-administrador/:id_admin', administradorController.eliminar);
 
 /**
  * @swagger

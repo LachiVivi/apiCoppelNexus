@@ -1,5 +1,6 @@
+// routes/referencias.js
 const { Router } = require('express');
-const { db } = require('../firebase');
+const ReferenciaController = require('../controllers/ReferenciaController');
 
 const router = Router();
 
@@ -22,23 +23,7 @@ const router = Router();
  *       500:
  *         description: Error del servidor
  */
-router.get('/referencias', async (req, res) => {
-    try {
-        const querySnapshot = await db.collection('referencias').get();
-        
-        const referencias = querySnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }));
-        
-        res.status(200).json(referencias);
-    } catch (error) {
-        res.status(500).json({
-            error: 'Error al obtener las referencias',
-            detalle: error.message
-        });
-    }
-});
+router.get('/referencias', ReferenciaController.obtenerTodasReferencias);
 
 /**
  * @swagger
@@ -66,32 +51,7 @@ router.get('/referencias', async (req, res) => {
  *       500:
  *         description: Error del servidor
  */
-router.get('/referencia/:id_referencia', async (req, res) => {
-    const { id_referencia } = req.params;
-
-    try {
-        const referenciasRef = db.collection('referencias');
-        const snapshot = await referenciasRef.where('id_referencia', '==', id_referencia).get();
-
-        if (snapshot.empty) {
-            return res.status(404).json({
-                error: 'No se encontró la referencia con el ID especificado'
-            });
-        }
-
-        const referencia = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        }))[0]; // Tomamos el primer documento ya que debería ser único
-
-        res.status(200).json(referencia);
-    } catch (error) {
-        res.status(500).json({
-            error: 'Error al obtener la referencia',
-            detalle: error.message
-        });
-    }
-});
+router.get('/referencia/:id_referencia', ReferenciaController.obtenerReferenciaPorId);
 
 /**
  * @swagger
@@ -133,44 +93,7 @@ router.get('/referencia/:id_referencia', async (req, res) => {
  *       500:
  *         description: Error al crear la referencia
  */
-router.post('/nueva-referencia', async (req, res) => {
-    const { id_colaborador, id_microempresario } = req.body;
-    
-    try {
-        // Generar ID aleatorio de 3 dígitos
-        const randomNum = Math.floor(Math.random() * 900) + 100;
-        const id_referencia = `ref${randomNum}`;
-
-        // Obtener fecha actual en formato AAAA-MM-DD
-        const fecha_actual = new Date().toISOString().split('T')[0];
-
-        const nuevaReferencia = {
-            id_referencia,
-            id_colaborador,
-            id_microempresario,
-            estado_referencia: "pendiente",
-            fecha_referencia: fecha_actual,
-            historial_estados: [
-                {
-                    estado: "pendiente",
-                    fecha: fecha_actual
-                }
-            ]
-        };
-
-        await db.collection('referencias').add(nuevaReferencia);
-        
-        res.status(201).json({
-            mensaje: 'Referencia creada exitosamente',
-            id_referencia
-        });
-    } catch (error) {
-        res.status(500).json({
-            error: 'Error al crear la referencia',
-            detalle: error.message
-        });
-    }
-});
+router.post('/nueva-referencia', ReferenciaController.crearReferencia);
 
 /**
  * @swagger
@@ -206,51 +129,7 @@ router.post('/nueva-referencia', async (req, res) => {
  *       500:
  *         description: Error al actualizar la referencia
  */
-router.put('/actualizar-referencia/:id_referencia', async (req, res) => {
-    const { id_referencia } = req.params;
-    const { estado_referencia } = req.body;
-    
-    try {
-        // Buscar la referencia por ID
-        const referenciasRef = db.collection('referencias');
-        const snapshot = await referenciasRef.where('id_referencia', '==', id_referencia).get();
-        
-        if (snapshot.empty) {
-            return res.status(404).json({
-                error: 'No se encontró la referencia con el ID especificado'
-            });
-        }
-        
-        // Obtener fecha actual en formato AAAA-MM-DD
-        const fecha_actual = new Date().toISOString().split('T')[0];
-        
-        // Obtener la referencia actual
-        const docRef = snapshot.docs[0].ref;
-        const referenciaActual = snapshot.docs[0].data();
-        
-        // Crear el nuevo estado para el historial
-        const nuevoEstado = {
-            estado: estado_referencia,
-            fecha: fecha_actual
-        };
-        
-        // Actualizar la referencia con el nuevo estado y añadirlo al historial
-        await docRef.update({
-            estado_referencia,
-            historial_estados: [...referenciaActual.historial_estados, nuevoEstado]
-        });
-        
-        res.status(200).json({
-            mensaje: 'Referencia actualizada exitosamente',
-            id_referencia
-        });
-    } catch (error) {
-        res.status(500).json({
-            error: 'Error al actualizar la referencia',
-            detalle: error.message
-        });
-    }
-});
+router.put('/actualizar-referencia/:id_referencia', ReferenciaController.actualizarReferenciaEstado);
 
 /**
  * @swagger
@@ -274,34 +153,7 @@ router.put('/actualizar-referencia/:id_referencia', async (req, res) => {
  *       500:
  *         description: Error al eliminar la referencia
  */
-router.delete('/eliminar-referencia/:id_referencia', async (req, res) => {
-    const { id_referencia } = req.params;
-    
-    try {
-        // Buscar la referencia por ID
-        const referenciasRef = db.collection('referencias');
-        const snapshot = await referenciasRef.where('id_referencia', '==', id_referencia).get();
-        
-        if (snapshot.empty) {
-            return res.status(404).json({
-                error: 'No se encontró la referencia con el ID especificado'
-            });
-        }
-        
-        // Eliminar la referencia
-        await snapshot.docs[0].ref.delete();
-        
-        res.status(200).json({
-            mensaje: 'Referencia eliminada exitosamente',
-            id_referencia
-        });
-    } catch (error) {
-        res.status(500).json({
-            error: 'Error al eliminar la referencia',
-            detalle: error.message
-        });
-    }
-});
+router.delete('/eliminar-referencia/:id_referencia', ReferenciaController.eliminarReferencia);
 
 /**
  * @swagger

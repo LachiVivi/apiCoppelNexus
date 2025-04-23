@@ -1,5 +1,5 @@
-const {Router} =  require('express');
-const{db} = require('../firebase')
+const { Router } = require('express');
+const incentivoController = require('../controllers/incentivoController');
 
 const router = Router();
 
@@ -43,35 +43,7 @@ const router = Router();
  *       500:
  *         description: Error al crear el incentivo
  */
-router.post('/nuevo-incentivo', async (req, res) => {
-    const{
-        titulo,
-        descripcion
-    } = req.body;
-
-    try {
-        const randomNum = Math.floor(Math.random() * 900) + 100;
-        const id_incentivo = `me${randomNum}`;
-
-        const nuevoIncentivo = {
-            id_incentivo,
-            titulo,
-            descripcion
-        };
-
-        await db.collection('incentivos').add(nuevoIncentivo);
-
-        res.status(201).json({
-            mensaje: 'Incentivo creado exitosamente',
-            id_incentivo: id_incentivo
-        });
-    } catch(error){
-        res.status(500).json({
-            error: 'Error al crear el incentivo',
-            detalle: error.message
-        });
-    }
-});
+router.post('/nuevo-incentivo', incentivoController.crear);
 
 /**
  * @swagger
@@ -92,14 +64,31 @@ router.post('/nuevo-incentivo', async (req, res) => {
  *       500:
  *         description: Error del servidor
  */
-router.get('/incentivos', async (req, res) => {
-    const snapshot = await db.collection('incentivos').get();
-    const incentivos = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-    }));
+router.get('/incentivos', incentivoController.obtenerTodos);
 
-    res.status(200).json(incentivos);
-});
+/**
+ * @swagger
+ * components:
+ *   schemas:
+ *     Incentivo:
+ *       type: object
+ *       required:
+ *         - id_incentivo
+ *         - titulo
+ *         - descripcion
+ *       properties:
+ *         id:
+ *           type: string
+ *           description: ID del documento en Firebase
+ *         id_incentivo:
+ *           type: string
+ *           description: ID único del incentivo
+ *         titulo:
+ *           type: string
+ *           description: Título del incentivo
+ *         descripcion:
+ *           type: string
+ *           description: Descripción detallada del incentivo
+ */
 
 module.exports = router;
